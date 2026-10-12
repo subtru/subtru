@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+*.cer binary
+*.pfx binary
+*.png binary
+*.jpg binary
+*.jpeg binary

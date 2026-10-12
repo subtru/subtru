@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "SubTru.Api (http)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5240",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "WebhookUrls__PublicBaseUrl": "https://localhost:7240",
+        "AppleVerification__RootCertificateDirectory": "./certs/apple",
+        "AppleVerification__EnableOnlineRevocationChecks": "true",
+        "AppleVerification__OnlineRevocationTimeout": "00:00:05"
+      }
+    },
+
+    "SubTru.Api (https)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7240;http://localhost:5240",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "WebhookUrls__PublicBaseUrl": "https://localhost:7240",
+        "AppleVerification__RootCertificateDirectory": "./certs/apple",
+        "AppleVerification__EnableOnlineRevocationChecks": "true",
+        "AppleVerification__OnlineRevocationTimeout": "00:00:05"
+      }
+    },
+
+    "SubTru.Api (Docker)": {
+      "commandName": "Docker",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "WebhookUrls__PublicBaseUrl": "https://localhost:3000",
+        "AppleVerification__RootCertificateDirectory": "./certs/apple",
+        "AppleVerification__EnableOnlineRevocationChecks": "true",
+        "AppleVerification__OnlineRevocationTimeout": "00:00:05"
+      }
+    }
+  }
+}

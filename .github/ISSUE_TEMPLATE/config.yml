@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/subtru/subtru/security/advisories/new
+    about: Report privately. Do not open a public issue for a suspected vulnerability.
+  - name: Self-hosting guide
+    url: https://subtru.com/self-host
+    about: Setup, configuration, and provider connection steps.
+  - name: Questions and support
+    url: mailto:support@subtru.com
+    about: Usage questions that are not bug reports.

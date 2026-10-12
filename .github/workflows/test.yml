@@ -1,0 +1,100 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: subtru_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore src/SubTru.sln
+
+      - name: Build
+        run: dotnet build src/SubTru.sln --no-restore --configuration Release
+
+      - name: Apply migrations
+        run: |
+          for f in db/migrations/*.sql; do
+            psql postgresql://postgres:postgres@localhost:5432/subtru_test -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Run tests
+        run: dotnet test tests/SubTru.Tests/SubTru.Tests.csproj --no-build --configuration Release
+        env:
+          SUBTRU_TEST_DB_CONNECTION: "Host=localhost;Port=5432;Database=subtru_test;Username=postgres;Password=postgres;Pooling=true;Timeout=15;Command Timeout=30"
+          ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=subtru_test;Username=postgres;Password=postgres;Pooling=true;Timeout=15;Command Timeout=30"
+          AppleVerification__RootCertificateDirectory: src/SubTru.Api/certs/apple
+          AppleVerification__EnableOnlineRevocationChecks: "false"
+          AppleVerification__OnlineRevocationTimeout: "00:00:05"
+          API_KEY_PEPPER: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          SUBTRU_ENCRYPTION_KEY: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          SUBTRU_ADMIN_API_KEY: "subtru_admin_0123456789abcdef0123456789abcdef"
+
+      - name: Build and smoke test container
+        shell: bash
+        run: |
+          docker build --tag subtru:ci .
+
+          docker run --rm --entrypoint sh subtru:ci \
+            -c 'test "$(id -u)" -ne 0'
+
+          container_id="$(
+            docker run --detach \
+              --network host \
+              --env "ConnectionStrings__Postgres=Host=127.0.0.1;Port=5432;Database=subtru_test;Username=postgres;Password=postgres" \
+              --env "AppleVerification__EnableOnlineRevocationChecks=false" \
+              --env "AppleVerification__OnlineRevocationTimeout=00:00:05" \
+              --env "API_KEY_PEPPER=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" \
+              --env "SUBTRU_ENCRYPTION_KEY=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" \
+              --env "SUBTRU_ADMIN_API_KEY=subtru_admin_0123456789abcdef0123456789abcdef" \
+              --env "WebhookUrls__PublicBaseUrl=https://api.example.com" \
+              subtru:ci
+          )"
+
+          cleanup() {
+            docker logs "$container_id"
+            docker rm --force "$container_id"
+          }
+          trap cleanup EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://localhost:3000/health/live >/dev/null && \
+               curl --fail --silent --show-error http://localhost:3000/health/ready; then
+              exit 0
+            fi
+
+            sleep 1
+          done
+
+          exit 1

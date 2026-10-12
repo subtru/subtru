@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest an improvement to the self-hosted SubTru API.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish, and what currently makes it difficult?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Optional. If you have one in mind, describe the API, provider, or deployment behavior you would like.

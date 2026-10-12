@@ -1,0 +1,42 @@
+name: Bug report
+description: Report reproducible incorrect behavior in SubTru.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include secrets or private customer data. Report security vulnerabilities privately using the process in `SECURITY.md`.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What you expected, what happened instead, and the impact. Include the provider and whether it was test or production if that matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: The smallest sequence that reproduces it, using sanitized test data.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: SubTru version
+      description: Release tag, container tag, or commit SHA.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have removed secrets and private customer data from this report.
+          required: true
