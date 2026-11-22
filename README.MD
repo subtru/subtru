@@ -1,5 +1,7 @@
 # SubTru
 
+![How SubTru works](docs/assets/how-subtru-works.png)
+
 SubTru is an open source, self-hostable API that makes it easy to manage your customers' subscriptions and is designed for web or mobile apps that sell recurring subscriptions through any combination of Stripe, the Apple App Store, and/or Google Play. Whenever one of your users purchases or changes their subscription, your subscription provider will send an event to the SubTru API. SubTru processes these events, stores or updates a subscription row for your user in a PostgreSQL database, and provides an endpoint for your app to fetch any user's subscription status so you can make product access decisions for your users.
 
 Example GET /access response:
